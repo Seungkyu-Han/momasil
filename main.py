@@ -1,4 +1,9 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+from lifespan import lifespan
+
+app = FastAPI(
+    lifespan=lifespan,
+    title="momasil",
+)
 
