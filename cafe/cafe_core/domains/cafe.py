@@ -4,11 +4,13 @@ class Cafe:
             self,
             id_: int,
             name: str,
-            img: str
+            img: str,
+            banner: str,
     ):
         self.id_ = id_
         self.name = name
         self.img = img
+        self.banner = banner
 
     def __eq__(self, other):
         if isinstance(other, Cafe):
