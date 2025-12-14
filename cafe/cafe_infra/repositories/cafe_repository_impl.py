@@ -8,10 +8,10 @@ from cafe.cafe_infra.mappers import cafe_mapper
 
 class CafeRepositoryImpl(CafeRepository):
 
-    def __init__(self, async_session: AsyncSession):
-        self.async_session = async_session
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
     async def save(self, cafe: Cafe):
         cafe_entity: CafeEntity = cafe_mapper.to_entity(cafe=cafe)
 
-        self.async_session.add(cafe_entity)
+        self.session.add(cafe_entity)
