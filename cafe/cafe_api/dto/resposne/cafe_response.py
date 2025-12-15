@@ -3,8 +3,16 @@ from pydantic import BaseModel, Field
 
 class CafeResponse(BaseModel):
 
-    id: str = Field(description="해당 카페의 ID")
-    name: str = Field(description="해당 카페의 이름")
+    id: str = Field(
+        ...,
+        description="해당 카페의 ID",
+        examples=[12312],
+    )
+    name: str = Field(
+        ...,
+        description="해당 카페의 이름",
+        examples=["모모드"],
+    )
     img: str = Field(description="해당 카페의 로고의 이미지")
     banner: str = Field(description="해당 카페의 배너 이미지")
 
