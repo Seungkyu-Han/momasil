@@ -8,6 +8,8 @@ RUN pip install -r ./requirements.txt
 
 COPY . /app
 
+RUN chmod 755 ./start.sh
+
 EXPOSE 8000
 
 CMD ["./start.sh"]
