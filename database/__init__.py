@@ -1,9 +1,7 @@
-from database.session import WriteSessionDep, ReadSessionDep, SessionDep
+from database.session import SessionDep
 from database.base import Base
 
 __all__ = [
     "SessionDep",
-    "WriteSessionDep",
-    "ReadSessionDep",
     "Base",
 ]

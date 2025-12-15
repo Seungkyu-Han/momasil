@@ -5,4 +5,7 @@ from cafe.cafe_api.dto.resposne.cafe_response import CafeResponse
 
 class CafeListResponse(BaseModel):
 
-    cafes: list[CafeResponse] = Field()
+    cafes: list[CafeResponse] = Field(
+        ...,
+        description="카페 정보 목록",
+    )

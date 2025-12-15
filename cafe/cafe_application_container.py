@@ -1,11 +1,11 @@
 from typing import Annotated
 
 from fastapi import Depends
-from snowflake import SnowflakeGenerator
 
 from cafe.cafe_application import CafeCommandServiceImpl, CafeQueryServiceImpl
 from cafe.cafe_core import CafeCommandService, CafeQueryService
 from cafe.cafe_infra_container import CafeRepositoryDep, CafeUowDep
+from config.snowflake_generator import SnowflakeGeneratorDep
 
 
 def get_cafe_query_service(
@@ -17,7 +17,7 @@ CafeQueryServiceDep = Annotated[CafeQueryService, Depends(get_cafe_query_service
 
 def get_cafe_command_service(
         cafe_uow: CafeUowDep,
-        snowflake_generator: SnowflakeGenerator
+        snowflake_generator: SnowflakeGeneratorDep
 ) -> CafeCommandService:
     return CafeCommandServiceImpl(
         cafe_uow=cafe_uow,
