@@ -17,6 +17,11 @@ async_session_maker = async_sessionmaker(
     autoflush=False,
 )
 
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    async with async_session_maker() as session:
+        yield session
+
+SessionDep = Annotated[AsyncSession, Depends(get_session)]
 
 async def get_write_session() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
