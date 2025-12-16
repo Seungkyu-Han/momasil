@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from menu.menu_core import MenuUow, CategoryRepository, MenuRepository
 
 
-class SqlCafeUow(MenuUow):
+class SqlMenuUow(MenuUow):
 
     def __init__(
             self,
