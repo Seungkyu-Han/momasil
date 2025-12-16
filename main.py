@@ -2,6 +2,7 @@ from fastapi import FastAPI
 
 from cafe import cafe_router
 from lifespan import lifespan
+from menu import menu_router
 
 app = FastAPI(
     lifespan=lifespan,
@@ -10,3 +11,4 @@ app = FastAPI(
 
 app.include_router(cafe_router)
 
+app.include_router(menu_router)
