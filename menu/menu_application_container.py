@@ -9,13 +9,11 @@ from menu.menu_infra_container import get_category_repository, get_menu_reposito
 
 
 def get_menu_query_service(
-        session = SessionDep,
-        category_repository_factory = get_category_repository,
-        menu_repository_factory = get_menu_repository,
+        session: SessionDep,
 ) -> MenuQueryService:
     return MenuQueryServiceImpl(
-        category_repository = category_repository_factory(session),
-        menu_repository = menu_repository_factory(session)
+        category_repository = get_category_repository(session),
+        menu_repository = get_menu_repository(session)
     )
 
 MenuQueryServiceDep = Annotated[MenuQueryService, Depends(get_menu_query_service)]
