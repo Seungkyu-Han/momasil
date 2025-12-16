@@ -52,7 +52,7 @@ async def create_cafe_api(
     )
 
     return CafeResponse(
-        id=cafe.id_,
+        id=str(cafe.id_),
         name=cafe.name,
         img=cafe.img,
         banner=cafe.banner
