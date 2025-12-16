@@ -10,6 +10,6 @@ class MenuRepository(ABC):
         ...
 
     @abstractmethod
-    async def find_by_cafe_id(self, cafe_id: int) -> list[Menu]:
+    async def find_by_category_id_in(self, cafe_ids: list[int]) -> list[Menu]:
         ...
 
