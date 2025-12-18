@@ -6,5 +6,5 @@ from crawler.crawler_core.models.craweled_catetory_menu import CrawledCategoryMe
 class CrawlerClient(ABC):
 
     @abstractmethod
-    async def retrieve_menu(self) -> CrawledCategoryMenu:
+    async def retrieve_menu(self) -> list[CrawledCategoryMenu]:
         ...
