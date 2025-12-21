@@ -38,7 +38,7 @@ class MMTHCrawlerClient(CrawlerClient):
                 name_en = li.select_one("div.txt_wrap p.eng").text.strip()
                 img = li.select_one("div.img_wrap img")["src"]
 
-                crawled_menus.append(CrawledMenu(name=name_kr, img=img, sort_order=menu_sort_order))
+                crawled_menus.append(CrawledMenu(name=name_kr, img=f"{self.BASE_URL}{img}", sort_order=menu_sort_order))
 
                 menu_sort_order += 1
 
