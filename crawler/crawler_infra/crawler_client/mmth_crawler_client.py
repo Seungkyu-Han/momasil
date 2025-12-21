@@ -31,25 +31,33 @@ class MMTHCrawlerClient(CrawlerClient):
 
         for cate_div in soup.select("div.cate"):
             category = cate_div.select_one("div.c_tit strong").text.strip()
+
             crawled_menus: list[CrawledMenu] = []
 
             for li in cate_div.select("ul.clear > li"):
                 name_kr = li.select_one("div.txt_wrap strong").text.strip()
-                name_en = li.select_one("div.txt_wrap p.eng").text.strip()
                 img = li.select_one("div.img_wrap img")["src"]
 
-                crawled_menus.append(CrawledMenu(name=name_kr, img=f"{self.BASE_URL}{img}", sort_order=menu_sort_order))
-
+                crawled_menus.append(
+                    CrawledMenu(
+                        name=name_kr,
+                        img=f"{self.BASE_URL}{img}",
+                        sort_order=menu_sort_order
+                    )
+                )
                 menu_sort_order += 1
 
-                crawled_category = CrawledCategory(name=category, sort_order=category_sort_order)
+            crawled_category = CrawledCategory(
+                name=category,
+                sort_order=category_sort_order
+            )
 
-                crawled_category_menu = CrawledCategoryMenu(
-                    crawled_category=crawled_category,
-                    crawled_menus=crawled_menus,
-                )
+            crawled_category_menu = CrawledCategoryMenu(
+                crawled_category=crawled_category,
+                crawled_menus=crawled_menus,
+            )
 
-                crawled_category_menus.append(crawled_category_menu)
+            crawled_category_menus.append(crawled_category_menu)
 
             category_sort_order += 1
 
