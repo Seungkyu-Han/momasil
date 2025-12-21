@@ -19,13 +19,11 @@ MenuRepositoryImplDep = Annotated[MenuRepositoryImpl, Depends(get_menu_repositor
 
 def get_menu_uow(
         session: SessionDep,
-        category_repository_factory = get_category_repository,
-        menu_repository_factory = get_menu_repository,
 ) -> MenuUow:
     return SqlMenuUow(
         session=session,
-        category_repository_factory=category_repository_factory,
-        menu_repository_factory=menu_repository_factory
+        category_repository_factory=get_category_repository,
+        menu_repository_factory=get_menu_repository,
     )
 
 MenuUowDep = Annotated[MenuUow, Depends(get_menu_uow)]
