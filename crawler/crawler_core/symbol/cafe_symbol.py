@@ -1,3 +1,3 @@
 from typing import Literal
 
-CafeSymbol: Literal["MMTH"]
+CafeSymbol = Literal["MMTH"]

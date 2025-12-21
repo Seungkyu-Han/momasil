@@ -4,7 +4,7 @@ import aiohttp
 import certifi
 from bs4 import BeautifulSoup
 
-from crawler.crawler_core import CrawlerClient, CrawledCategoryMenu, CrawledMenu, CrawledCategory
+from crawler.crawler_core import CrawlerClient, CrawledCategory
 from crawler.crawler_core.models.craweled_catetory_menu import CrawledCategoryMenu, CrawledMenu
 
 
