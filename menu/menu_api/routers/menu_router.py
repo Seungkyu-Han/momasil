@@ -10,14 +10,15 @@ menu_router = APIRouter(
 )
 
 @menu_router.get(
-    path="{cafeId}",
+    path="/{cafeId}",
     description="해당 카페의 카테고리와 메뉴를 조회",
 )
 async def retrieve_menu_by_cafe_id_api(
         menu_query_service: MenuQueryServiceDep,
         cafe_id: str = Path(..., alias="cafeId"),
 ) -> CategoryMenuListResponse:
-    category_menus: list[CategoryMenu] = await menu_query_service.retrieve_menus_by_cafe_id(cafe_id=cafe_id)
+    cafe_id_ = int(cafe_id)
+    category_menus: list[CategoryMenu] = await menu_query_service.retrieve_menus_by_cafe_id(cafe_id=cafe_id_)
 
     category_menu_responses: list[CategoryResponse] = []
 

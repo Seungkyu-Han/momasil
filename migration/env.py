@@ -49,7 +49,8 @@ def load_all_entities_auto():
     for entities_dir in project_root.rglob("entities"):
         for _, module_name, _ in pkgutil.iter_modules([str(entities_dir)]):
             relative_path = entities_dir.relative_to(project_root)
-            module_path = f"{str(relative_path).replace('/', '.')}.{module_name}"
+            clean_path = ".".join(relative_path.parts)
+            module_path = f"{clean_path}.{module_name}"
 
             importlib.import_module(module_path)
 
