@@ -11,20 +11,16 @@ class CrawlerSyncServiceImpl(CrawlerSyncService):
             self,
             cafe_uow: CafeUow,
             menu_uow: MenuUow,
-            mmth_crawler_client: CrawlerClient,
+            mmth_crawler_client_map: dict[CafeSymbol, CrawlerClient],
             snowflake_generator: SnowflakeGenerator,
     ):
         self.cafe_uow = cafe_uow
         self.menu_uow = menu_uow
-        self.mmth_crawler_client = mmth_crawler_client
+        self.mmth_crawler_client_map = mmth_crawler_client_map
         self.snowflake_generator = snowflake_generator
 
-        self.cafe_crawler_mapper: dict[CafeSymbol, CrawlerClient] = {
-            "MMTH": self.mmth_crawler_client,
-        }
-
     def select_crawler(self, cafe_symbol: CafeSymbol) -> CrawlerClient:
-        return self.cafe_crawler_mapper.get(cafe_symbol)
+        return self.mmth_crawler_client_map.get(cafe_symbol)
 
     async def update_cafe_menu(
             self,
