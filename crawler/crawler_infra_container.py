@@ -4,8 +4,7 @@ from typing import Annotated
 from fastapi import Depends
 
 from crawler.crawler_core import CrawlerClient
-from crawler.crawler_infra import MMTHCrawlerClient, MGCCrawlerClient
-from crawler.crawler_infra.crawler_client.mgc_crawler_client import MGCCrawlerClient
+from crawler.crawler_infra import MMTHCrawlerClient, MGCCrawlerClient, TheVentiCrawlerClient
 
 
 @lru_cache
@@ -20,3 +19,10 @@ def get_mgc_crawler_client() -> CrawlerClient:
     return MGCCrawlerClient()
 
 MGCCrawlerClientDep = Annotated[CrawlerClient, Depends(get_mgc_crawler_client)]
+
+@lru_cache
+def get_the_venti_crawler_client() -> CrawlerClient:
+    return TheVentiCrawlerClient()
+
+TheVentiCrawlerClientDep = Annotated[CrawlerClient, Depends(get_the_venti_crawler_client)]
+
