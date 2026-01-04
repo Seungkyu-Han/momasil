@@ -4,9 +4,9 @@ from fastapi import Depends
 
 from cafe.cafe_infra_container import CafeUowDep
 from config.snowflake_generator import SnowflakeGeneratorDep
-from crawler.crawler_core import CrawlerSyncService
+from crawler.crawler_core import CrawlerSyncService, CafeSymbol
 from crawler.crawler_application import CrawlerSyncServiceImpl
-from crawler.crawler_infra_container import MMTHCrawlerClientDep
+from crawler.crawler_infra_container import MMTHCrawlerClientDep, MGCCrawlerClientDep
 from menu.menu_infra_container import MenuUowDep
 
 
@@ -14,12 +14,16 @@ def get_crawler_sync_service(
         cafe_uow: CafeUowDep,
         menu_uow: MenuUowDep,
         mmth_crawler_client: MMTHCrawlerClientDep,
+        mgc_crawler_client: MGCCrawlerClientDep,
         snowflake_generator: SnowflakeGeneratorDep,
 ) -> CrawlerSyncService:
     return CrawlerSyncServiceImpl(
         cafe_uow=cafe_uow,
         menu_uow=menu_uow,
-        mmth_crawler_client=mmth_crawler_client,
+        mmth_crawler_client_map={
+            CafeSymbol.MMTH: mmth_crawler_client,
+            CafeSymbol.MGC: mgc_crawler_client,
+        },
         snowflake_generator=snowflake_generator,
     )
 
