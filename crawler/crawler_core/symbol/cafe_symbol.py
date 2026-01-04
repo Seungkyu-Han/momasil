@@ -1,3 +1,5 @@
-from typing import Literal
+from enum import Enum
 
-CafeSymbol = Literal["MMTH"]
+class CafeSymbol(str, Enum):
+    MMTH = "MMTH"
+    MGC = "MGC"
