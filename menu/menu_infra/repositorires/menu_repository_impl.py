@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from menu.menu_core import MenuRepository, Menu
 from menu.menu_infra.entities.menu_entity import MenuEntity
@@ -37,3 +37,12 @@ class MenuRepositoryImpl(MenuRepository):
         return [
             menu_mapper.to_domain(menu_entity=menu_entity) for menu_entity in menu_entities
         ]
+
+    async def delete_all(self, menus: list[Menu]):
+
+        menu_ids = [menu.id_ for menu in menus]
+
+        await self.session.execute(
+            delete(MenuEntity).where(MenuEntity.id_.in_(menu_ids))
+        )
+

@@ -37,6 +37,14 @@ class CrawlerSyncServiceImpl(CrawlerSyncService):
 
         async with self.menu_uow as uow:
 
+            categories = await self.menu_uow.category_repository.find_by_cafe_id(cafe_id)
+
+            menus = await self.menu_uow.menu_repository.find_by_category_id_in(category_ids=[category.id_ for category in categories])
+
+            await self.menu_uow.menu_repository.delete_all(menus)
+
+            await self.menu_uow.category_repository.delete_by_cafe_id(cafe_id)
+
             for crawled_category_menu in crawled_category_menus:
                 crawled_category = crawled_category_menu.crawled_category
                 crawled_menus = crawled_category_menu.crawled_menus
