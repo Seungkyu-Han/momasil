@@ -1,7 +1,7 @@
 from typing import Sequence
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 from menu.menu_core import CategoryRepository, Category
 from menu.menu_infra.entities.category_entity import CategoryEntity
@@ -32,3 +32,8 @@ class CategoryRepositoryImpl(CategoryRepository):
         return [
             category_mapper.to_domain(category_entity=category_entity) for category_entity in category_entities
         ]
+
+    async def delete_by_cafe_id(self, cafe_id: int):
+        await self.session.execute(
+            delete(CategoryEntity).where(CategoryEntity.cafe_id == cafe_id)
+        )
