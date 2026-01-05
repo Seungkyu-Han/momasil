@@ -1,7 +1,7 @@
-from basket.basket_core.domains.item import Item
+from cart.cart_core.domains.item import Item
 
 
-class Cart:
+class Basket:
 
     id_: int
     cafe_id: int
