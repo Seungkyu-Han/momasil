@@ -6,7 +6,8 @@ from cafe.cafe_infra_container import CafeUowDep
 from config.snowflake_generator import SnowflakeGeneratorDep
 from crawler.crawler_core import CrawlerSyncService, CafeSymbol
 from crawler.crawler_application import CrawlerSyncServiceImpl
-from crawler.crawler_infra_container import MMTHCrawlerClientDep, MGCCrawlerClientDep, TheVentiCrawlerClientDep
+from crawler.crawler_infra_container import MMTHCrawlerClientDep, MGCCrawlerClientDep, TheVentiCrawlerClientDep, \
+    ComposeCrawlerClientDep
 from menu.menu_infra_container import MenuUowDep
 
 
@@ -16,6 +17,7 @@ def get_crawler_sync_service(
         mmth_crawler_client: MMTHCrawlerClientDep,
         mgc_crawler_client: MGCCrawlerClientDep,
         the_venti_crawler_client: TheVentiCrawlerClientDep,
+        compose_crawler_client_dep: ComposeCrawlerClientDep,
         snowflake_generator: SnowflakeGeneratorDep,
 ) -> CrawlerSyncService:
     return CrawlerSyncServiceImpl(
@@ -25,6 +27,7 @@ def get_crawler_sync_service(
             CafeSymbol.MMTH: mmth_crawler_client,
             CafeSymbol.MGC: mgc_crawler_client,
             CafeSymbol.THE_VENTI: the_venti_crawler_client,
+            CafeSymbol.COMPOSE: compose_crawler_client_dep,
         },
         snowflake_generator=snowflake_generator,
     )
