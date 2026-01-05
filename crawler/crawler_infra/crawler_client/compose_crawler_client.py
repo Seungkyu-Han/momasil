@@ -1,0 +1,113 @@
+import ssl
+
+import aiohttp
+import certifi
+from bs4 import BeautifulSoup, ResultSet
+
+from crawler.crawler_core import CrawlerClient, CrawledCategory
+from crawler.crawler_core.models.craweled_catetory_menu import CrawledCategoryMenu, CrawledMenu
+
+
+def get_last_page(soup: BeautifulSoup) -> int:
+
+    page_numbers = []
+    for link in soup.select(".page-link"):
+        if link.text.strip().isdigit():
+            page_numbers.append(int(link.text.strip()))
+    return max(page_numbers) if page_numbers else 1
+
+
+class ComposeCrawlerClient(CrawlerClient):
+
+    def __init__(self):
+        self.    BASE_URL = 'https://composecoffee.com/'
+
+        self.headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.86 Safari/537.36'
+        }
+
+        self.ssl_context = ssl.create_default_context(cafile=certifi.where())
+
+
+    async def category_link_mapper(self, link: str) -> list[tuple[str, str]]:
+
+        async with aiohttp.ClientSession(headers=self.headers) as session:
+            async with session.get(link, ssl=self.ssl_context) as response:
+                html = await response.text()
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        result: list[tuple[str, str]] = []
+
+        for a_tag in soup.find_all("a", href=True):
+            href = a_tag["href"]
+            if href.startswith("http") and "/menu/category/" in href:
+                name = a_tag.get_text(strip=True)
+                result.append((name, href))
+
+        seen = set()
+        unique_result = []
+        for name, href in result:
+            if href not in seen:
+                seen.add(href)
+                unique_result.append((name, href))
+
+        return unique_result
+
+    async def retrieve_menu(self) -> list[CrawledCategoryMenu]:
+
+        category_link_map: list[tuple[str, str]] = await self.category_link_mapper(f'{self.BASE_URL}/menu')
+        crawled_category_menus: list[CrawledCategoryMenu] = []
+        category_sort_order = 1
+        menu_sort_order = 1
+
+        for category_name, category_url in category_link_map:
+            menus: list[CrawledMenu] = []
+
+            async with aiohttp.ClientSession(headers=self.headers) as session:
+                async with session.get(category_url, headers=self.headers, ssl=self.ssl_context) as response:
+                    html = await response.text()
+
+                soup = BeautifulSoup(html, "html.parser")
+
+                category_last_page = get_last_page(soup)
+
+                for page in range(1, category_last_page + 1):
+                    url = f"{category_url}?page={page}"
+
+                    async with session.get(url, headers=self.headers, ssl=self.ssl_context) as response:
+                        pres = await response.text()
+
+                    p_soup = BeautifulSoup(pres, "html.parser")
+
+                    items = p_soup.select(".itemBox")
+
+                    for item in items:
+                        title_tag = item.select_one("h4.title") or item.select_one("h3.undertitle")
+                        img_tag = item.select_one("img")
+
+                        name_kr = title_tag.get_text(strip=True) if title_tag else None
+                        img = img_tag["src"] if img_tag else None
+                        if img and not img.startswith("http"):
+                            img = self.BASE_URL.rstrip("/") + img
+
+                        menus.append(CrawledMenu(name=name_kr, img=img, sort_order=menu_sort_order))
+
+                        menu_sort_order += 1
+
+                crawled_category = CrawledCategory(
+                    name=category_name,
+                    sort_order=category_sort_order,
+                )
+
+                crawled_category_menu = CrawledCategoryMenu(
+                    crawled_category=crawled_category,
+                    crawled_menus=menus,
+                )
+
+                crawled_category_menus.append(crawled_category_menu)
+
+                category_sort_order += 1
+
+        return crawled_category_menus
+
