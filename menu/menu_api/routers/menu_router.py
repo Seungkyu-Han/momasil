@@ -7,6 +7,7 @@ from menu.menu_core.models.category_menu import CategoryMenu
 
 menu_router = APIRouter(
     prefix="/menus",
+    tags=["menu"]
 )
 
 @menu_router.get(

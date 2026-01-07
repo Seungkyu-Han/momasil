@@ -13,7 +13,7 @@ class BasketUowImpl(BasketUow):
             basket_repository_factory: Callable[[AsyncSession], BasketRepository],
     ):
         self.session = session
-        self.category_repository = basket_repository_factory(session)
+        self.basket_repository = basket_repository_factory(session)
 
     async def __aenter__(self):
         return self
