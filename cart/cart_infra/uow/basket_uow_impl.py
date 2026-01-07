@@ -1,0 +1,31 @@
+from typing import Callable
+
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from cart.cart_core.output.uow.basket_uow import BasketUow, BasketRepository
+
+
+class BasketUowImpl(BasketUow):
+
+    def __init__(
+            self,
+            session: AsyncSession,
+            basket_repository_factory: Callable[[AsyncSession], BasketRepository],
+    ):
+        self.session = session
+        self.category_repository = basket_repository_factory(session)
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, exc_type, exc_val, exc_tb):
+        if exc_type:
+            await self.rollback()
+        else:
+            await self.commit()
+
+    async def commit(self):
+        await self.session.commit()
+
+    async def rollback(self):
+        await self.session.rollback()
