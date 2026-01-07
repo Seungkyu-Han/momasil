@@ -13,9 +13,9 @@ class Basket:
             id_: int,
             cafe_id: int,
             name: str,
-            items: list[Item]
+            items: list[Item]  | None = None
     ):
         self.id_ = id_
         self.cafe_id = cafe_id
         self.name = name
-        self.items = items
+        self.items = items or []
