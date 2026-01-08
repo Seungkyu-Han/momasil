@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from cart.cart_core import Basket, BasketRepository
@@ -16,3 +17,14 @@ class BasketRepositoryImpl(BasketRepository):
         self.session.add(basket_entity)
 
         return basket
+
+    async def find_by_id(self, id_: int) -> Basket | None:
+        stmt = select(BasketEntity).where(
+            BasketEntity.id_ == id_
+        )
+
+        result = await self.session.execute(stmt)
+
+        basket_entity: BasketEntity = result.scalar_one_or_none()
+
+        return basket_mapper.to_domain(basket_entity=basket_entity)

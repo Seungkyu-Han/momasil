@@ -1,6 +1,7 @@
 from snowflake import SnowflakeGenerator
 
 from cart.cart_core import BasketCommandService, BasketUow, Basket
+from cart.cart_core.domains.item import Item
 
 
 class BasketCommandServiceImpl(BasketCommandService):
@@ -28,3 +29,20 @@ class BasketCommandServiceImpl(BasketCommandService):
             await self.basket_uow.basket_repository.save(basket)
 
         return basket
+
+    async def update_basket(
+            self,
+            basket_id: int,
+            items: list[Item]
+    ) -> Basket:
+        async with self.basket_uow:
+            basket: Basket | None = await self.basket_uow.basket_repository.find_by_id(basket_id)
+
+            if basket is None:
+                raise Exception
+
+            basket.items = items
+
+            await self.basket_uow.basket_repository.save(basket)
+
+            return basket
