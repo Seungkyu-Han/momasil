@@ -18,6 +18,7 @@ class BasketCommandService(ABC):
     async def update_basket(
             self,
             basket_id: int,
-            items: list[Item]
+            item_ids: list[int],
+            counts: list[int],
     ) -> Basket:
         ...

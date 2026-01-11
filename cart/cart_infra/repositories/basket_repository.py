@@ -14,7 +14,7 @@ class BasketRepositoryImpl(BasketRepository):
     async def save(self, basket: Basket) -> Basket:
         basket_entity: BasketEntity = basket_mapper.to_entity(basket=basket)
 
-        self.session.add(basket_entity)
+        await self.session.merge(basket_entity)
 
         return basket
 

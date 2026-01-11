@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from cart.cart_api.routers.response.item_response import ItemResponse
+from cart.cart_api.dto.response.item_response import ItemResponse
 
 
 class RetrieveCartResponse(BaseModel):

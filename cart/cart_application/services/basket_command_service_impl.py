@@ -33,13 +33,23 @@ class BasketCommandServiceImpl(BasketCommandService):
     async def update_basket(
             self,
             basket_id: int,
-            items: list[Item]
+            item_ids: list[int],
+            counts: list[int],
     ) -> Basket:
         async with self.basket_uow:
             basket: Basket | None = await self.basket_uow.basket_repository.find_by_id(basket_id)
 
             if basket is None:
                 raise Exception
+
+            items: list[Item] = [
+                Item(
+                    id_=next(self.snowflake_generator),
+                    basket_id=basket_id,
+                    menu_id=item_id,
+                    count=count,
+                ) for item_id, count in zip(item_ids, counts)
+            ]
 
             basket.items = items
 
