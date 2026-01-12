@@ -6,7 +6,6 @@ class SocketManager:
         self.active_connections: Dict[int, Set[WebSocket]] = {}
 
     async def connect(self, cart_id: int, websocket: WebSocket):
-        await websocket.accept()
         if cart_id not in self.active_connections:
             self.active_connections[cart_id] = set()
         self.active_connections[cart_id].add(websocket)

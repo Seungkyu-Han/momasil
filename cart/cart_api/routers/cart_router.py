@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.websockets import WebSocketDisconnect
 
 from cart.cart_api.dto.request.create_cart_request import CreateCartRequest
-from cart.cart_api.dto.request.item_request import ItemRequest
 from cart.cart_api.dto.request.retrieve_cart_request import RetrieveCartRequest
 from cart.cart_api.dto.request.update_cart_request import UpdateCartRequest
 from cart.cart_api.dto.response.create_cart_response import CreateCartResponse
@@ -111,7 +110,7 @@ async def find_menu_info_list(
 
     basket: Basket = await basket_query_service.retrieve_basket(cart_id)
 
-    item_ids: list[int] = [item.id_ for item in basket.items]
+    menu_ids = [item.menu_id for item in basket.items]
     counts: list[int] = [item.count for item in basket.items]
 
     category_menus: list[CategoryMenu] = await menu_query_service.retrieve_menus_by_cafe_id(
@@ -126,8 +125,8 @@ async def find_menu_info_list(
     return RetrieveCartResponse(
         cart_id=str(basket.id_),
         items=[ItemResponse(
-            name=menu_map[int(item_id)].name,
-            img=menu_map[int(item_id)].img,
+            name=menu_map[item_id].name,
+            img=menu_map[item_id].img,
             count=count
-        ) for item_id, count in zip(item_ids, counts)]
+        ) for item_id, count in zip(menu_ids, counts)]
     )
