@@ -1,7 +1,9 @@
 from fastapi import APIRouter, WebSocket
+from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.websockets import WebSocketDisconnect
 
 from cart.cart_api.dto.request.create_cart_request import CreateCartRequest
+from cart.cart_api.dto.request.item_request import ItemRequest
 from cart.cart_api.dto.request.retrieve_cart_request import RetrieveCartRequest
 from cart.cart_api.dto.request.update_cart_request import UpdateCartRequest
 from cart.cart_api.dto.response.create_cart_response import CreateCartResponse
@@ -10,15 +12,17 @@ from cart.cart_api.dto.response.retrieve_cart_response import RetrieveCartRespon
 from cart.cart_application_container import BasketCommandServiceDep, get_basket_query_service, \
     get_basket_command_service
 from cart.cart_core import Basket
-from cart.cart_core.domains.item import Item
+from menu.menu_core import Menu, CategoryMenu
 from cart.cart_infra_container import get_basket_repository, get_basket_uow
 from config.snowflake_generator import get_snowflake_generator
 from database.session import async_session_maker
+from menu.menu_application_container import get_menu_query_service
 
 cart_router = APIRouter(
     prefix="/carts",
     tags=["cart"]
 )
+
 
 @cart_router.post(
     path="",
@@ -38,7 +42,7 @@ async def create_cart_api(
 
 
 @cart_router.websocket(
-    path="/websocket"
+    path="/websocket",
 )
 async def cart_websocket(
         websocket: WebSocket,
@@ -53,20 +57,7 @@ async def cart_websocket(
 
         async with async_session_maker() as session:
 
-            basket_query_service = get_basket_query_service(
-                basket_repository=get_basket_repository(session = session)
-            )
-
-            basket: Basket = await basket_query_service.retrieve_basket(int(retrieve_cart_request.cart_id))
-
-            retrieve_cart_response: RetrieveCartResponse = RetrieveCartResponse(
-                cart_id=str(basket.id_),
-                items=[ItemResponse(
-                    name=str(item.id_),
-                    img=str(item.id_),
-                    count=item.count
-                ) for item in basket.items]
-            )
+            retrieve_cart_response = await find_menu_info_list(session=session, cart_id=int(cart_id))
 
             await websocket.send_json(retrieve_cart_response.model_dump())
 
@@ -87,9 +78,47 @@ async def cart_websocket(
                     counts=[int(item.count) for item in update_cart_request.items],
                 )
 
-                await websocket.send_json(update_cart_request.model_dump())
+                retrieve_cart_response = await find_menu_info_list(session=session, cart_id=int(cart_id))
+
+                await websocket.send_json(retrieve_cart_response.model_dump())
 
                 await session.close()
 
     except WebSocketDisconnect as e:
         print(f"WebSocket 종료됨 (code={e.code})")
+
+
+async def find_menu_info_list(
+        session: AsyncSession,
+        cart_id: int,
+) -> RetrieveCartResponse:
+    basket_query_service = get_basket_query_service(
+        basket_repository=get_basket_repository(session=session)
+    )
+
+    menu_query_service = get_menu_query_service(
+        session=session
+    )
+
+    basket: Basket = await basket_query_service.retrieve_basket(cart_id)
+
+    item_ids: list[int] = [item.id_ for item in basket.items]
+    counts: list[int] = [item.count for item in basket.items]
+
+    category_menus: list[CategoryMenu] = await menu_query_service.retrieve_menus_by_cafe_id(
+        cafe_id=basket.cafe_id)
+
+    menu_map: dict[int, Menu] = {}
+
+    for category_menu in category_menus:
+        for menu in category_menu.menus:
+            menu_map[menu.id_] = menu
+
+    return RetrieveCartResponse(
+        cart_id=str(basket.id_),
+        items=[ItemResponse(
+            name=menu_map[int(item_id)].name,
+            img=menu_map[int(item_id)].img,
+            count=count
+        ) for item_id, count in zip(item_ids, counts)]
+    )
