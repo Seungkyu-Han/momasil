@@ -12,6 +12,7 @@ from cart.cart_api.dto.response.retrieve_cart_response import RetrieveCartRespon
 from cart.cart_application_container import BasketCommandServiceDep, get_basket_query_service, \
     get_basket_command_service
 from cart.cart_core import Basket
+from config.socket_manager import SocketManager
 from menu.menu_core import Menu, CategoryMenu
 from cart.cart_infra_container import get_basket_repository, get_basket_uow
 from config.snowflake_generator import get_snowflake_generator
@@ -40,6 +41,7 @@ async def create_cart_api(
         cart_id=str(basket.id_)
     )
 
+cart_socket_manager = SocketManager()
 
 @cart_router.websocket(
     path="/websocket",
@@ -47,13 +49,15 @@ async def create_cart_api(
 async def cart_websocket(
         websocket: WebSocket,
 ):
+    cart_id: int | None = None
     try:
-
         await websocket.accept()
 
         retrieve_cart_request = RetrieveCartRequest.model_validate(await websocket.receive_json())
 
-        cart_id = retrieve_cart_request.cart_id
+        cart_id = int(retrieve_cart_request.cart_id)
+
+        await cart_socket_manager.connect(cart_id, websocket)
 
         async with async_session_maker() as session:
 
@@ -80,12 +84,17 @@ async def cart_websocket(
 
                 retrieve_cart_response = await find_menu_info_list(session=session, cart_id=int(cart_id))
 
-                await websocket.send_json(retrieve_cart_response.model_dump())
+                await cart_socket_manager.broadcast(
+                    cart_id,
+                    retrieve_cart_response.model_dump()
+                )
 
                 await session.close()
 
     except WebSocketDisconnect as e:
         print(f"WebSocket 종료됨 (code={e.code})")
+        if cart_id is not None:
+            cart_socket_manager.disconnect(cart_id, websocket)
 
 
 async def find_menu_info_list(
