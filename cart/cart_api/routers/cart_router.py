@@ -1,4 +1,4 @@
-from fastapi import APIRouter, WebSocket
+from fastapi import APIRouter, WebSocket, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.websockets import WebSocketDisconnect
 
@@ -39,6 +39,16 @@ async def create_cart_api(
     return CreateCartResponse(
         cart_id=str(basket.id_)
     )
+
+@cart_router.post(
+    path="/websocket",
+    response_model=RetrieveCartResponse
+)
+async def cart_websocket_description(
+        update_cart_request: UpdateCartRequest,
+        retrieve_car_request: RetrieveCartRequest,
+):
+    return Response(status_code=200)
 
 cart_socket_manager = SocketManager()
 
